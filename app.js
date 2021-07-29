@@ -26,6 +26,7 @@ app.use('/', indexRouter);
  * Rutas del API
  */
 //app.post('/api/loginJWT',   loginController.postJWT);
+app.use('/apiv1/login', require('./routes/apiv1/login'));
 app.use('/apiv1/users', require('./routes/apiv1/users'));
 app.use('/apiv1/adverts', require('./routes/apiv1/adverts'));
 

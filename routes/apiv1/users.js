@@ -1,8 +1,9 @@
+'use strict';
+
 var express = require('express');
 var router = express.Router();
 const { User } = require('../../models')
 
-//const Advert = require('../../models/Advert');
 
 router.get('/', async function (req, res, next) {
     try {
@@ -20,6 +21,7 @@ router.post('/', async function (req, res, next) {
         //await res.send('hola')
         //console.log(req)
         const newUser = new User(req.body)
+        newUser.password = await User.hashPassword(req.body.password)
         const saved = await newUser.save()
         res.json({ ok: true, result: saved })
     } catch (err) { next(err) }
