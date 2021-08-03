@@ -19,10 +19,11 @@ router.post('/', async function (req, res, next) {
     try {
         //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
         //await res.send('hola')
-        //console.log(req)
+        console.log(req.body)
         const newUser = new User(req.body)
         newUser.password = await User.hashPassword(req.body.password)
         const saved = await newUser.save()
+        await newUser.sendRegisterMail('Este es el asunto', 'Bienvenido a NodeAPI');
         res.json({ ok: true, result: saved })
     } catch (err) { next(err) }
 
