@@ -3,6 +3,7 @@
 var express = require('express');
 var router = express.Router();
 const { Advert } = require('../../models')
+const jwtAuth = require('../../lib/jwtAuth')
 
 //const Advert = require('../../models/Advert');
 
