@@ -32,7 +32,10 @@ userSchema.methods.deleteFavoriteElement = function (adId) {
 }
 userSchema.methods.addFavoriteElement = function (adId) {
     console.log("Fav no existe, se añadirá")
-    this.favorites[adId] = adId
+    adId ?
+        this.favorites[adId] = adId
+        :
+        console.log(adId)
 
 }
 userSchema.methods.getArrayWithFavoritesIds = function () {

@@ -4,6 +4,7 @@ var express = require('express');
 var router = express.Router();
 const { Advert, User } = require('../../models')
 const jwtAuth = require('../../lib/jwtAuth')
+const jwtSofAuth = require('../../lib/jwtSofAuth')
 
 //const Advert = require('../../models/Advert');
 /**
@@ -14,9 +15,6 @@ router.get('/', async function (req, res, next) {
         const query = await Advert.find({})
         res.send(query)
     } catch (err) { next(err) }
-    //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
-
-    //console.log(query)
 })
 
 /**
@@ -38,13 +36,21 @@ router.get('/my-ads', jwtAuth, async function (req, res, next) {
 /**
  * Obtener un anuncio
  */
-router.post('/one-ad', jwtAuth, async function (req, res, next) {
+router.post('/one-ad', jwtSofAuth, async function (req, res, next) {
+
     try {
         console.log('one-ads')
         const _id = req.body.adId;
-        console.log("ppppppppppppp", _id)
+        //jwtAuth mete en req.body el id del usuario que hace
+        //la peticion: lo guardo en requesterId
+
         const query = await Advert.findOne({ _id })
-        console.log('QUERY', query)
+        if (req.body.userId) {
+            const requesterId = req.body.userId
+            query.requesterId = requesterId
+        }
+
+
         res.send(query)
     } catch (err) { next(err) }
 })
@@ -79,7 +85,6 @@ router.post('/', jwtAuth, async function (req, res, next) {
         //await res.send('hola')
         //console.log(req)
         const newAdvert = new Advert(req.body)
-        console.log(req.body)
         const saved = await newAdvert.save()
         res.json({ ok: true, result: saved })
     } catch (err) {

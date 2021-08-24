@@ -115,7 +115,7 @@ router.post('/fav', jwtAuth, async function (req, res, next) {
             :
             user.addFavoriteElement(adId)
 
-        user.prin(adId)
+        //user.prin(adId)
         const updateObjetc = {
             'favorites': user.favorites
         }

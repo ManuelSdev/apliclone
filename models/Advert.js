@@ -12,6 +12,7 @@ const advertSchema = mongoose.Schema({
   images: [String],
   tags: { type: [String], index: true },
   userId: { type: String, index: true },
+  requesterId: { type: String, index: true },
 
 })
 
