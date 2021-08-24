@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const jwtAuth = require('./lib/jwtAuth')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -19,18 +20,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+//app.use('/', indexRouter);
 //app.use('/users', usersRouter);
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
   next();
 });
 /**
  * Rutas del API
  */
 //app.post('/api/loginJWT',   loginController.postJWT);
-app.use('/apiv1/login', require('./routes/apiv1/login'));
+//app.use('/apiv1/login', require('./routes/apiv1/login'));
 app.use('/apiv1/users', require('./routes/apiv1/users'));
 app.use('/apiv1/adverts', require('./routes/apiv1/adverts'));
 

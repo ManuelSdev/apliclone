@@ -9,8 +9,10 @@ const advertSchema = mongoose.Schema({
   price: { type: Number, index: true },
   author: { type: String, index: true },
   description: String,
-  // images: [String],
-  tags: { type: [String], index: true }
+  images: [String],
+  tags: { type: [String], index: true },
+  userId: { type: String, index: true },
+
 })
 /*
 usuarioSchema.statics.hashPassword = function (plain) {

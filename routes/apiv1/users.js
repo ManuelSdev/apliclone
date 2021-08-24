@@ -4,6 +4,8 @@ var express = require('express');
 var router = express.Router();
 const { User } = require('../../models')
 const jwt = require('jsonwebtoken')
+const jwtAuth = require('../../lib/jwtAuth')
+
 
 
 router.get('/', async function (req, res, next) {
@@ -45,12 +47,18 @@ router.post('/login', async function (req, res, next) {
          * REFINA LOS IF QUE AHORA NO TIENEN SENTIDO
          */
         const { email, password } = req.body;
+        if (!email) {
+            console.log('jkakah')
+            const error = new Error('invalid credentials');
+            error.status = 401;
+            next(error);
+        }
         // console.log(req.body)
         // buscar el usuario en la BD
         const user = await User.findOne({ email })
         // si no lo encontramos --> error
         // si no coincide la clave --> error
-        if (!user || !(await usuario.comparePassword(password))) {
+        if (!user || !(await user.comparePassword(password))) {
             if (!user) {
                 console.log('usuario')
             }
@@ -64,18 +72,61 @@ router.post('/login', async function (req, res, next) {
         }
         // si el usuario existe y la clave coincide
         // crear un token JWT (firmado)
-        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '2h' }, (err, jwtToken) => {
+        jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '2d' }, (err, accessToken) => {
             if (err) {
                 next(err);
                 return;
             }
             // devolveselo al cliente
-            res.json({ token: jwtToken });
+            //al poner solo la clave del objeto, el valor toma el mismo nombre, que es la variable accesToken de que pasa a la callback de arriba
+            res.json({ accessToken });
         });
     } catch (err) {
         next(err);
     }
 })
+
+/**Obtener objeto con id´s de anuncios favoritos */
+router.get('/fav', jwtAuth, async function (req, res, next) {
+    try {
+        const _id = req.body.userId;
+        const user = await User.findById(_id)
+        res.json(user.favorites)
+
+    } catch (err) { next(err) }
+
+})
+
+/**Añadir/quitar un id de anuncio favorito  */
+router.post('/fav', jwtAuth, async function (req, res, next) {
+    try {
+        const _id = req.body.userId;
+        const adId = req.body.adId;
+
+        /*
+        const favKey = `favorites.${adId}`
+        const updateObjetc = {
+            [favKey]: adId
+        }
+        */
+        const user = await User.findById(_id)
+        user.checkFavoriteElement(adId) ?
+            user.deleteFavoriteElement(adId)
+            :
+            user.addFavoriteElement(adId)
+
+        user.prin(adId)
+        const updateObjetc = {
+            'favorites': user.favorites
+        }
+        await User.findByIdAndUpdate(_id, updateObjetc)
+        console.log("USER  ", user)
+        res.json(user.favorites)
+
+    } catch (err) { next(err) }
+
+})
+
 
 /**Logout de usuario */
 

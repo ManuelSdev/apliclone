@@ -11,7 +11,8 @@ const userSchema = mongoose.Schema({
     username: { type: String, unique: true },
     email: { type: String, unique: true },
     password: String,
-    active: false
+    active: false,
+    favorites: { type: {}, index: true },
 })
 
 userSchema.statics.hashPassword = function (cleanPassword) {
@@ -24,6 +25,25 @@ userSchema.methods.comparePassword = function (cleanPassword) {
 
 }
 
+userSchema.methods.deleteFavoriteElement = function (adId) {
+    console.log("Fav existe, se borrará")
+    delete this.favorites[adId]
+
+}
+userSchema.methods.addFavoriteElement = function (adId) {
+    console.log("Fav no existe, se añadirá")
+    this.favorites[adId] = adId
+
+}
+userSchema.methods.prin = function (adId) {
+    console.log("ESTEE", this.favorites[adId])
+
+}
+userSchema.methods.checkFavoriteElement = function (adId) {
+    return (
+        this.favorites[adId] ? true : false
+    )
+}
 userSchema.methods.sendRegisterMail = function (subject, body) {
     //Crear un transport = canal para enviar mail
     const transport = nodemailer.createTransport(
