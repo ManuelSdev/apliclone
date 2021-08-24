@@ -2,7 +2,7 @@
 
 var express = require('express');
 var router = express.Router();
-const { Advert } = require('../../models')
+const { Advert, User } = require('../../models')
 const jwtAuth = require('../../lib/jwtAuth')
 
 //const Advert = require('../../models/Advert');
@@ -46,6 +46,25 @@ router.post('/one-ad', jwtAuth, async function (req, res, next) {
         const query = await Advert.findOne({ _id })
         console.log('QUERY', query)
         res.send(query)
+    } catch (err) { next(err) }
+})
+
+/**
+ * Obtener anuncios favoritos
+ * El modelo de usuario tiene un objeto "favoritos" con los id´s
+ *  de los anuncios favoritos tanto para clave como para valor
+ */
+router.get('/favs', jwtAuth, async function (req, res, next) {
+    try {
+        //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
+        const userId = req.body.userId
+        const user = await User.findById(userId)
+        const favoritesIds = user.getArrayWithFavoritesIds()
+
+        //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
+        const favoritesAds = await Advert.findFavoritesAds(favoritesIds)
+
+        res.send(favoritesAds)
     } catch (err) { next(err) }
 })
 /**

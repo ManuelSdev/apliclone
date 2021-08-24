@@ -14,11 +14,16 @@ const advertSchema = mongoose.Schema({
   userId: { type: String, index: true },
 
 })
-/*
-usuarioSchema.statics.hashPassword = function (plain) {
-  return hash.sha256().update(plain).digest('hex')
+
+advertSchema.statics.findFavoritesAds = async function (favoritesIds) {
+  return Promise.all(
+    favoritesIds.map(async function (_id) {
+      return await Advert.findById(_id)
+    })
+  ).then(allFavoritesAds => allFavoritesAds)
 }
-*/
+
+
 var Advert = mongoose.model('Advert', advertSchema)
 
 module.exports = Advert

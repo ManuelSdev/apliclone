@@ -35,8 +35,8 @@ userSchema.methods.addFavoriteElement = function (adId) {
     this.favorites[adId] = adId
 
 }
-userSchema.methods.prin = function (adId) {
-    console.log("ESTEE", this.favorites[adId])
+userSchema.methods.getArrayWithFavoritesIds = function () {
+    return Object.getOwnPropertyNames(this.favorites)
 
 }
 userSchema.methods.checkFavoriteElement = function (adId) {
