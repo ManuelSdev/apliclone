@@ -93,5 +93,32 @@ router.post('/', jwtAuth, async function (req, res, next) {
     }
 
 })
+/**
+ * Actualizar anuncio
+ */
+router.put('/:adId', jwtAuth, async function (req, res, next) {
+    try {
+        //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
+        //await res.send('hola')
+        //console.log(req)
+        const adId = req.params.adId;
+        const newAdValues = req.body
+        const updatedAd = await Advert.findByIdAndUpdate(adId, newAdValues, {
+            new: true,
+            useFindAndModify: false
+        });
+        // usamos { new: true } para que nos devuelva el agente actualizado
+
+        if (!updatedAd) {
+            res.status(404).json({ error: 'not found' });
+            return;
+        }
+        res.json({ result: updatedAd });
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+
+})
 
 module.exports = router;
