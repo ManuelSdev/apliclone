@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema({
     email: { type: String, unique: true },
     password: String,
     active: false,
-    favorites: { type: {}, index: true },
+    favorites: { type: [String], index: true },
 })
 
 userSchema.statics.hashPassword = function (cleanPassword) {

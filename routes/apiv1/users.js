@@ -97,6 +97,32 @@ router.get('/fav', jwtAuth, async function (req, res, next) {
 
 })
 
+/**Actualizar favoritos */
+router.put('/:adId', jwtAuth, async function (req, res, next) {
+    try {
+        // console.log("req que llega", req.body)
+        const _id = req.body.userId;
+        const adId = req.params.adId
+        //console.log("param", adId)
+        const action = req.body.action
+        //console.log("ACTION", action)
+        const updatedUser = action === 'push' ?
+            await User.findByIdAndUpdate(_id, { '$push': { "favorites": adId } }, {
+                new: true,
+                useFindAndModify: false
+            })
+            :
+            await User.findByIdAndUpdate(_id, { '$pull': { "favorites": adId } }, {
+                new: true,
+                useFindAndModify: false
+            })
+        //console.log("updated", updatedUser)
+        res.json(updatedUser.favorites)
+
+    } catch (err) { next(err) }
+
+})
+
 /**Añadir/quitar un id de anuncio favorito  */
 router.post('/fav', jwtAuth, async function (req, res, next) {
     try {
