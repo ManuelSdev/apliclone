@@ -60,7 +60,7 @@ router.post('/one-ad', jwtSofAuth, async function (req, res, next) {
  * El modelo de usuario tiene un objeto "favoritos" con los id´s
  *  de los anuncios favoritos tanto para clave como para valor
  */
-router.get('/favs', jwtAuth, async function (req, res, next) {
+router.get('/favs-NO', jwtAuth, async function (req, res, next) {
     try {
         //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
         const userId = req.body.userId
@@ -70,6 +70,25 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
         //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
         const favoritesAds = await Advert.findFavoritesAds(favoritesIds)
 
+        res.send(favoritesAds)
+    } catch (err) { next(err) }
+})
+
+router.get('/favs', jwtAuth, async function (req, res, next) {
+    try {
+        //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
+        const userId = req.body.userId
+        const user = await User.findById(userId)
+        const userFavsIds = user.favorites
+        // const favoritesIds = user.getArrayWithFavoritesIds()
+
+        //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
+        const favoritesAds = await Promise.all(
+            userFavsIds.map(async function (_id) {
+                return await Advert.findById(_id)
+            })
+        ).then(allFavoritesAds => allFavoritesAds)
+        console.log(favoritesAds)
         res.send(favoritesAds)
     } catch (err) { next(err) }
 })
