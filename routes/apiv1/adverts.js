@@ -36,11 +36,13 @@ router.get('/my-ads', jwtAuth, async function (req, res, next) {
 /**
  * Obtener un anuncio
  */
-router.post('/one-ad', jwtSofAuth, async function (req, res, next) {
+router.get('/:adId', jwtSofAuth, async function (req, res, next) {
 
     try {
-        console.log('one-ads')
-        const _id = req.body.adId;
+        console.log('PETICION /one-ads')
+        //const _id = req.body.adId;
+        const _id = req.params.adId;
+        console.log("ad id", _id)
         //jwtAuth mete en req.body el id del usuario que hace
         //la peticion: lo guardo en requesterId
 
@@ -49,8 +51,6 @@ router.post('/one-ad', jwtSofAuth, async function (req, res, next) {
             const requesterId = req.body.userId
             query.requesterId = requesterId
         }
-
-
         res.send(query)
     } catch (err) { next(err) }
 })
@@ -137,7 +137,25 @@ router.put('/:adId', jwtAuth, async function (req, res, next) {
         console.log(err)
         next(err)
     }
-
 })
 
+/**
+ * Borrar anuncio
+ */
+router.delete('/:adId', jwtAuth, async function (req, res, next) {
+    try {
+        //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
+        //await res.send('hola')
+        //console.log(req)
+        const userId = req.body.userId
+        const adId = req.params.adId;
+        console.log(adId)
+        const deletedAd = await Advert.findByIdAndDelete(adId)
+        res.json({ ok: true, result: deletedAd })
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+
+})
 module.exports = router;
