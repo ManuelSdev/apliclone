@@ -36,10 +36,10 @@ router.get('/my-ads', jwtAuth, async function (req, res, next) {
 /**
  * Obtener un anuncio
  */
-router.get('/:adId', jwtSofAuth, async function (req, res, next) {
+router.get('/oneAd/:adId', jwtSofAuth, async function (req, res, next) {
 
     try {
-        console.log('PETICION /one-ads')
+        //console.log('PETICION /one-ads')
         //const _id = req.body.adId;
         const _id = req.params.adId;
         console.log("ad id", _id)
@@ -75,11 +75,15 @@ router.get('/favs-NO', jwtAuth, async function (req, res, next) {
 })
 
 router.get('/favs', jwtAuth, async function (req, res, next) {
+    console.log("PETICIÓN FAVS")
     try {
         //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
+        console.log("PETICIÓN FAVS", req)
+
         const userId = req.body.userId
         const user = await User.findById(userId)
         const userFavsIds = user.favorites
+        console.log(userFavsIds)
         // const favoritesIds = user.getArrayWithFavoritesIds()
 
         //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
@@ -88,9 +92,12 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
                 return await Advert.findById(_id)
             })
         ).then(allFavoritesAds => allFavoritesAds)
-        console.log(favoritesAds)
+        // console.log(favoritesAds)
         res.send(favoritesAds)
-    } catch (err) { next(err) }
+    } catch (err) {
+        console.log(eror)
+        next(err)
+    }
 })
 /**
  * Crear anuncios
