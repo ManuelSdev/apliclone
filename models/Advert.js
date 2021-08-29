@@ -9,7 +9,7 @@ const advertSchema = mongoose.Schema({
   price: { type: Number, index: true },
   author: { type: String, index: true },
   description: String,
-  images: [String],
+  images: String,
   tags: { type: [String], index: true },
   userId: { type: String, index: true },
   requesterId: { type: String, index: true },

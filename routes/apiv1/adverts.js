@@ -5,8 +5,19 @@ var router = express.Router();
 const { Advert, User } = require('../../models')
 const jwtAuth = require('../../lib/jwtAuth')
 const jwtSofAuth = require('../../lib/jwtSofAuth')
+const upload = require('../../lib/multerUploadS3')
 
 //const Advert = require('../../models/Advert');
+
+/**
+ * Obtener tags / Aquí se definen los tag seleccionables
+ */
+router.get('/tags', async function (req, res, next) {
+    try {
+        const selectablesTags = ['hogar', 'motor', 'informática']
+        res.send(selectablesTags)
+    } catch (err) { next(err) }
+})
 /**
  * Obtener todos los anuncios
  */
@@ -22,10 +33,11 @@ router.get('/', async function (req, res, next) {
  */
 router.get('/my-ads', jwtAuth, async function (req, res, next) {
     try {
-        console.log('my-ads')
+        console.log('my-adssssssssssss')
         const userId = req.body.userId;
+        console.log('USER ID', userId)
         const query = await Advert.find({ userId })
-        console.log(query)
+        console.log("la query", query)
         res.send(query)
     } catch (err) { next(err) }
     //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
@@ -78,7 +90,7 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
     console.log("PETICIÓN FAVS")
     try {
         //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
-        console.log("PETICIÓN FAVS", req)
+        //console.log("PETICIÓN FAVS", req)
 
         const userId = req.body.userId
         const user = await User.findById(userId)
@@ -99,18 +111,27 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
         next(err)
     }
 })
+
 /**
  * Crear anuncios
  * el método jwtAuth() verifica el token de la cabecera
  * si el token es correcto, permite acceder a la ruta y añade req.body.userId a petición
  * el esquema de anuncios debe integrar este id del usuario que los crea
+ * Al ejecutar el middleware upload.single, req.file contendrá toda la info del archivo de imagen que hemos cargado
+ * y ha sido devuelto por amazon
+ * la propiedad req.file.location contiene la ruta al archivo en el bucket
  */
-router.post('/', jwtAuth, async function (req, res, next) {
+router.post('/', upload.single("images"), jwtAuth, async function (req, res, next) {
     try {
-        //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
         //await res.send('hola')
-        //console.log(req)
-        const newAdvert = new Advert(req.body)
+        console.log("@@@@@@@@@@@@@@@@@@@", req.body)
+        //console.log("REQ FILE", req.file)
+        //console.log("REQ BODY", req.body)
+        const advert = req.file ?
+            { images: req.file.location, ...req.body }
+            :
+            req.body
+        const newAdvert = new Advert(advert)
         const saved = await newAdvert.save()
         res.json({ ok: true, result: saved })
     } catch (err) {
@@ -119,6 +140,8 @@ router.post('/', jwtAuth, async function (req, res, next) {
     }
 
 })
+
+
 /**
  * Actualizar anuncio
  */
@@ -165,4 +188,6 @@ router.delete('/:adId', jwtAuth, async function (req, res, next) {
     }
 
 })
+
+
 module.exports = router;
