@@ -124,13 +124,18 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
 router.post('/', upload.single("images"), jwtAuth, async function (req, res, next) {
     try {
         //await res.send('hola')
-        console.log("@@@@@@@@@@@@@@@@@@@", req.body)
+
         //console.log("REQ FILE", req.file)
         //console.log("REQ BODY", req.body)
+        const user = await User.findById(req.body.userId)
+        // console.log("%%%%%%%%%%", user)
+        req.body.author = user.username
+        // console.log("@@@@@@@@@@@@@@@@@@@", req.body.userId)
         const advert = req.file ?
             { images: req.file.location, ...req.body }
             :
             req.body
+        //console.log("@@@@@@@@@@@@@@@@@@@", req.body)
         const newAdvert = new Advert(advert)
         const saved = await newAdvert.save()
         res.json({ ok: true, result: saved })

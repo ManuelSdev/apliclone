@@ -13,6 +13,9 @@ const userSchema = mongoose.Schema({
     password: String,
     active: false,
     favorites: { type: [String], index: true },
+    image: String,
+    numerOfAds
+
 })
 
 userSchema.statics.hashPassword = function (cleanPassword) {
