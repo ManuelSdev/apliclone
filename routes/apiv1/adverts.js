@@ -111,7 +111,31 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
         next(err)
     }
 })
+/**
+ * Obtener anuncios de un miembro que no tiene por que ser el usuario
+ * Los anuncios se buscan por campo author
+ * Tambien 
+ */
+router.get('/memberAds/:memberName', jwtAuth, async function (req, res, next) {
+    console.log("PETICIÓN memberAds")
+    try {
+        //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
+        //console.log("PETICIÓN FAVS", req)
 
+        const author = req.params.memberName
+
+        console.log("AUTHOR ###############", author)
+        // const favoritesIds = user.getArrayWithFavoritesIds()
+
+        //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
+        const memberAds = await Advert.find({ author })
+        console.log("MEMBER ADSSS ##########################", memberAds)
+        res.send(memberAds)
+    } catch (err) {
+        console.log(eror)
+        next(err)
+    }
+})
 /**
  * Crear anuncios
  * el método jwtAuth() verifica el token de la cabecera

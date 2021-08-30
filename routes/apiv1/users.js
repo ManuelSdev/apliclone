@@ -8,11 +8,13 @@ const jwtAuth = require('../../lib/jwtAuth')
 
 
 
-router.get('/', async function (req, res, next) {
+router.get('/:userName', jwtAuth, async function (req, res, next) {
     try {
-        const query = await User.find({})
-        // res.send(query)
-        res.json({ ok: true, result: query });
+        const username = req.params.userName
+        console.log("USERRR ===============", username)
+        const query = await User.findOne({ username })
+        console.log("query USER ===============", query)
+        res.send(query)
     } catch (err) { next(err) }
     //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
 

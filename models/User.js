@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
     active: false,
     favorites: { type: [String], index: true },
     image: String,
-    numerOfAds
+    numerOfAds: { type: Number },
 
 })
 
