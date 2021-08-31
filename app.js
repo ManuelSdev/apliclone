@@ -43,6 +43,7 @@ app.use(function (req, res, next) {
 });
 
 // error handler
+/*
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
@@ -52,5 +53,42 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+*/
+// error handler
+app.use(function (err, req, res, next) {
+  if (err.array) { // validation error
+    err.status = 422
+    const errInfo = err.array({ onlyFirstError: true })[0]
+    err.message = isAPI(req)
+      ? { message: __('not_valid'), errors: err.mapped() }
+      : `${__('not_valid')} - ${errInfo.param} ${errInfo.msg}`
+  }
 
+  // establezco el status a la respuesta
+  err.status = err.status || 500
+  res.status(err.status)
+
+  // si es un 500 lo pinto en el log
+  if (err.status && err.status >= 500) console.error(err)
+
+  // si es una petición al API respondo JSON...
+  if (isAPI(req)) {
+    console.log("API**************************")
+    res.json({ ok: false, reason: err.message })
+    return
+  }
+
+  // ...y si no respondo con HTML...
+
+  // set locals, only providing error in development
+  res.locals.message = err.message
+  res.locals.error = req.app.get('env') === 'development' ? err : {}
+
+  // render the error page
+  res.render('error')
+})
+
+function isAPI(req) {
+  return req.originalUrl.indexOf('/api') === 0
+}
 module.exports = app;
