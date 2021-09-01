@@ -11,9 +11,9 @@ const jwtAuth = require('../../lib/jwtAuth')
 router.get('/:userName', jwtAuth, async function (req, res, next) {
     try {
         const username = req.params.userName
-        console.log("USERRR ===============", username)
+        //console.log("USERRR ===============", username)
         const query = await User.findOne({ username })
-        console.log("query USER ===============", query)
+        //console.log("query USER ===============", query)
         res.send(query)
     } catch (err) { next(err) }
     //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
@@ -26,7 +26,26 @@ router.post('/register', async function (req, res, next) {
     try {
         //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
         //await res.send('hola')
-        console.log(req.body)
+        //console.log(req.body)
+        const { username, email, password } = req.body
+        console.log(req.boy)
+        if (!email) {
+            const error = new Error('Introduzca otro email');
+            error.status = 401;
+            next(error);
+            return;
+        } if (!username) {
+            const error = new Error('Introduzca un nombre de usuario');
+            error.status = 401;
+            next(error);
+            return;
+        }
+        if (!password) {
+            const error = new Error('Introduzca una contraseña');
+            error.status = 401;
+            next(error);
+            return;
+        }
         const newUser = new User(req.body)
         newUser.password = await User.hashPassword(req.body.password)
         const saved = await newUser.save()
@@ -40,7 +59,7 @@ router.post('/register', async function (req, res, next) {
             return
         }
 
-        console.log("MI ERROR", error)
+        // console.log("MI ERROR", error)
         //console.log(err)
 
         next(err)
@@ -63,7 +82,7 @@ router.post('/register', async function (req, res, next) {
 
 router.post('/login', async function (req, res, next) {
     try {
-        console.log("REQ BODY", req.body)
+        //console.log("REQ BODY", req.body)
         const { email, password } = req.body;
         if (!email) {
             const error = new Error('El email o la contraseña son incorrectos TEST-MAIL');
@@ -72,7 +91,7 @@ router.post('/login', async function (req, res, next) {
             return;
         }
         const user = await User.findOne({ email })
-        console.log("QUERY DEL USER-----", user)
+        //console.log("QUERY DEL USER-----", user)
         // si no lo encontramos --> error
         // si no coincide la clave --> error
         if (!user || !(await user.comparePassword(password))) {
@@ -157,7 +176,7 @@ router.post('/fav', jwtAuth, async function (req, res, next) {
             'favorites': user.favorites
         }
         await User.findByIdAndUpdate(_id, updateObjetc)
-        console.log("USER  ", user)
+        // console.log("USER  ", user)
         res.json(user.favorites)
 
     } catch (err) { next(err) }

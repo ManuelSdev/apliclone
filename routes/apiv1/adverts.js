@@ -7,7 +7,37 @@ const jwtAuth = require('../../lib/jwtAuth')
 const jwtSofAuth = require('../../lib/jwtSofAuth')
 const upload = require('../../lib/multerUploadS3')
 
-//const Advert = require('../../models/Advert');
+
+/**
+ *  
+    console.log("REQ.QUERY", req.query)
+    console.log("REQ.PARAMS", req.params)
+    console.log("REQ.BODY", req.body)
+ */
+
+
+/**
+ * Obtener anuncios
+ */
+router.get('/', async function (req, res, next) {
+    const filters = {}
+    filters.name = req.query.name;
+    filters.tags = req.query.tags;
+    filters.sale = req.query.sale ?? req.query.sale
+    const start = parseInt(req.query.start) || 0;
+    // nuestro api devuelve max 1000 registros
+    const limit = parseInt(req.query.limit) || 1000;
+    //const skip = parseInt(req.query.skip);
+    const maxPrice = parseInt(req.query.maxPrice) || 1000000
+    const minPrice = parseInt(req.query.minPrice) || 0
+    const sort = req.query.sort || '_id';
+
+    console.log("FILTERS", req.query)
+    try {
+        const query = await Advert.find({})
+        res.send(query)
+    } catch (err) { next(err) }
+})
 
 /**
  * Obtener tags / Aquí se definen los tag seleccionables
@@ -18,26 +48,17 @@ router.get('/tags', async function (req, res, next) {
         res.send(selectablesTags)
     } catch (err) { next(err) }
 })
-/**
- * Obtener todos los anuncios
- */
-router.get('/', async function (req, res, next) {
-    try {
-        const query = await Advert.find({})
-        res.send(query)
-    } catch (err) { next(err) }
-})
 
 /**
  * Obtener anuncios propios
  */
 router.get('/my-ads', jwtAuth, async function (req, res, next) {
     try {
-        console.log('my-adssssssssssss')
+        //console.log('my-adssssssssssss')
         const userId = req.body.userId;
-        console.log('USER ID', userId)
+        // console.log('USER ID', userId)
         const query = await Advert.find({ userId })
-        console.log("la query", query)
+        //  console.log("la query", query)
         res.send(query)
     } catch (err) { next(err) }
     //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
@@ -54,7 +75,7 @@ router.get('/oneAd/:adId', jwtSofAuth, async function (req, res, next) {
         //console.log('PETICION /one-ads')
         //const _id = req.body.adId;
         const _id = req.params.adId;
-        console.log("ad id", _id)
+        //  console.log("ad id", _id)
         //jwtAuth mete en req.body el id del usuario que hace
         //la peticion: lo guardo en requesterId
 
@@ -87,7 +108,7 @@ router.get('/favs-NO', jwtAuth, async function (req, res, next) {
 })
 
 router.get('/favs', jwtAuth, async function (req, res, next) {
-    console.log("PETICIÓN FAVS")
+    //console.log("PETICIÓN FAVS")
     try {
         //Uso el id del usuario que hace la petición para obtener un array con los id´s de sus favoritos
         //console.log("PETICIÓN FAVS", req)
@@ -95,7 +116,7 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
         const userId = req.body.userId
         const user = await User.findById(userId)
         const userFavsIds = user.favorites
-        console.log(userFavsIds)
+        //console.log(userFavsIds)
         // const favoritesIds = user.getArrayWithFavoritesIds()
 
         //Uso el método estático del modelo Adverts para encontrar todos los anuncios que corresponden a los id´s de favoritos
@@ -107,7 +128,7 @@ router.get('/favs', jwtAuth, async function (req, res, next) {
         // console.log(favoritesAds)
         res.send(favoritesAds)
     } catch (err) {
-        console.log(eror)
+        // console.log(eror)
         next(err)
     }
 })
@@ -121,7 +142,7 @@ router.get('/memberAds/:memberName', async function (req, res, next) {
         const memberAds = await Advert.find({ author })
         res.send(memberAds)
     } catch (err) {
-        console.log(eror)
+        // console.log(eror)
         next(err)
     }
 })
@@ -136,8 +157,27 @@ router.get('/memberAds/:memberName', async function (req, res, next) {
  */
 router.post('/', upload.single("images"), jwtAuth, async function (req, res, next) {
     try {
-        //await res.send('hola')
 
+        const { name, price, tags, sale } = req.body
+        console.log(tags)
+        console.log(sale)
+        if (!name) {
+            const error = new Error('Debe indicar que producto quiere vender para subir un anuncio');
+            error.status = 401;
+            next(error);
+        }
+        if (sale === true) {
+            const error = new Error('Indique un precio valido para subir el anuncio');
+            error.status = 401;
+            next(error);
+        }
+        if (!tags || tags.length == 0) {
+            const error = new Error('Seleccione, al menos, un tag');
+            error.status = 401;
+            next(error);
+            return;
+        }
+        //await res.send('hola')
         //console.log("REQ FILE", req.file)
         //console.log("REQ BODY", req.body)
         const user = await User.findById(req.body.userId)
@@ -153,7 +193,7 @@ router.post('/', upload.single("images"), jwtAuth, async function (req, res, nex
         const saved = await newAdvert.save()
         res.json({ ok: true, result: saved })
     } catch (err) {
-        console.log(err)
+        // console.log(err)
         next(err)
     }
 
@@ -182,7 +222,7 @@ router.put('/:adId', jwtAuth, async function (req, res, next) {
         }
         res.json({ result: updatedAd });
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         next(err)
     }
 })
@@ -197,11 +237,11 @@ router.delete('/:adId', jwtAuth, async function (req, res, next) {
         //console.log(req)
         const userId = req.body.userId
         const adId = req.params.adId;
-        console.log(adId)
+        // console.log(adId)
         const deletedAd = await Advert.findByIdAndDelete(adId)
         res.json({ ok: true, result: deletedAd })
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         next(err)
     }
 

@@ -73,7 +73,7 @@ app.use(function (err, req, res, next) {
 
   // si es una petición al API respondo JSON...
   if (isAPI(req)) {
-    console.log("API**************************")
+    //console.log("API**************************")
     res.json({ ok: false, reason: err.message })
     return
   }
