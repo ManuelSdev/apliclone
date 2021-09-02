@@ -32,10 +32,11 @@ router.get('/', async function (req, res, next) {
     const minPrice = parseInt(req.query.minPrice) || 0
     const sort = req.query.sort || '_id';
 
-    console.log("FILTERS", req.query)
+
     try {
         const query = await Advert.find({})
-        res.send(query)
+        console.log("ssssssssssssssssssssssssssss", query)
+        res.send(query.reverse())
     } catch (err) { next(err) }
 })
 
