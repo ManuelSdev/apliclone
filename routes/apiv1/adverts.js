@@ -160,14 +160,12 @@ router.post('/', upload.single("images"), jwtAuth, async function (req, res, nex
     try {
 
         const { name, price, tags, sale } = req.body
-        console.log(tags)
-        console.log(sale)
         if (!name) {
             const error = new Error('Debe indicar que producto quiere vender para subir un anuncio');
             error.status = 401;
             next(error);
         }
-        if (sale === true) {
+        if (sale === true && !price) {
             const error = new Error('Indique un precio valido para subir el anuncio');
             error.status = 401;
             next(error);
@@ -178,9 +176,14 @@ router.post('/', upload.single("images"), jwtAuth, async function (req, res, nex
             next(error);
             return;
         }
+
+        req.body.price = sale == 'false' ?
+            null
+            :
+            price
         //await res.send('hola')
         //console.log("REQ FILE", req.file)
-        //console.log("REQ BODY", req.body)
+        console.log("REQ BODY", req.body)
         const user = await User.findById(req.body.userId)
         // console.log("%%%%%%%%%%", user)
         req.body.author = user.username
@@ -203,19 +206,43 @@ router.post('/', upload.single("images"), jwtAuth, async function (req, res, nex
 
 /**
  * Actualizar anuncio
+ * CLAVE: necesitas el middleware multer/upload para tratar la petición en formdata
  */
-router.put('/:adId', jwtAuth, async function (req, res, next) {
+router.put('/:adId', upload.single("images"), jwtAuth, async function (req, res, next) {
     try {
-        //console.log(`El usuario que hace esta petición es ${req.apiAuthUserId}`);
-        //await res.send('hola')
-        //console.log(req)
+
+        const { name, price, tags, sale } = req.body
+        if (!name) {
+            const error = new Error('Debe indicar que producto quiere vender para subir un anuncio');
+            error.status = 401;
+            next(error);
+        }
+        if (sale === true && !price) {
+            const error = new Error('Indique un precio valido para subir el anuncio');
+            error.status = 401;
+            next(error);
+        }
+        if (!tags || tags.length == 0) {
+            const error = new Error('Seleccione, al menos, un tag');
+            error.status = 401;
+            next(error);
+            return;
+        }
+
         const adId = req.params.adId;
-        const newAdValues = req.body
+        const newAdValues = req.file ?
+            { images: req.file.location, ...req.body }
+            :
+            req.body
+
+
+        console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", newAdValues)
+        console.log("---------------------------------------------------------------", adId)
         const updatedAd = await Advert.findByIdAndUpdate(adId, newAdValues, {
             new: true,
             useFindAndModify: false
         });
-        // usamos { new: true } para que nos devuelva el agente actualizado
+        // usamos { new: true } para que nos devuelva el anuncio actualizado
 
         if (!updatedAd) {
             res.status(404).json({ error: 'not found' });
