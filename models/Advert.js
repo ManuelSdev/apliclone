@@ -13,8 +13,9 @@ const advertSchema = mongoose.Schema({
   tags: { type: [String], index: true },
   userId: { type: String, index: true },
   requesterId: { type: String, index: true },
-
 })
+
+
 //Sin uso
 advertSchema.statics.findFavoritesAds = async function (favoritesIds) {
   return Promise.all(
@@ -37,6 +38,7 @@ advertSchema.statics.list = async function (filters) {
   return await query.exec();
 }
 
+advertSchema.index({ name: 'text', description: 'text' });
 var Advert = mongoose.model('Advert', advertSchema)
 
 module.exports = Advert
