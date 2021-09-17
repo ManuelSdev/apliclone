@@ -21,7 +21,9 @@ const upload = require('../../lib/multerUploadS3')
  */
 router.get('/', async function (req, res, next) {
     const filters = {}
-    filters.name = req.query.name;
+    // i = bandera que no distingue mayúsculas de minúsculas
+    filters.description = new RegExp(req.query.keywords, 'i');
+    /*
     filters.tags = req.query.tags;
     filters.sale = req.query.sale ?? req.query.sale
     const start = parseInt(req.query.start) || 0;
@@ -32,11 +34,16 @@ router.get('/', async function (req, res, next) {
     const minPrice = parseInt(req.query.minPrice) || 0
     const sort = req.query.sort || '_id';
 
-
     try {
         const query = await Advert.find({})
         console.log("ssssssssssssssssssssssssssss", query)
         res.send(query.reverse())
+    } catch (err) { next(err) }
+    */
+    try {
+        const query = await Advert.list(filters)
+        console.log("ssssssssssssssssssssssssssss", query)
+        res.send(query)
     } catch (err) { next(err) }
 })
 

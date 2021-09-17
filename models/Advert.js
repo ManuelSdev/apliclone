@@ -15,7 +15,7 @@ const advertSchema = mongoose.Schema({
   requesterId: { type: String, index: true },
 
 })
-
+//Sin uso
 advertSchema.statics.findFavoritesAds = async function (favoritesIds) {
   return Promise.all(
     favoritesIds.map(async function (_id) {
@@ -24,6 +24,18 @@ advertSchema.statics.findFavoritesAds = async function (favoritesIds) {
   ).then(allFavoritesAds => allFavoritesAds)
 }
 
+// 
+/**
+ * find recibe un objeto, por ejemplo Advert.find({name: "Ramon"})
+ * Ahora le pasamos un objeto filter que puede tener varias claves
+ * Ej: si filters = {name: "Ramon", age: 20}, hacemos Advert.find(filters)
+ * 
+ */
+advertSchema.statics.list = async function (filters) {
+  console.log("FILTERS QUE LLEGAN A LIST: ", filters)
+  const query = Advert.find(filters)
+  return await query.exec();
+}
 
 var Advert = mongoose.model('Advert', advertSchema)
 
