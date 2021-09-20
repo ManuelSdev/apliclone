@@ -6,7 +6,7 @@ const { Advert, User } = require('../../models')
 const jwtAuth = require('../../lib/jwtAuth')
 const jwtSofAuth = require('../../lib/jwtSofAuth')
 const upload = require('../../lib/multerUploadS3')
-
+const { buildAdFilterFromReq } = require("../../lib/utils")
 
 /**
  *  
@@ -20,26 +20,10 @@ const upload = require('../../lib/multerUploadS3')
  * Obtener anuncios
  */
 router.get('/', async function (req, res, next) {
-    const filters = {}
-    // i = bandera que no distingue mayúsculas de minúsculas
-    //
-    /**
-     * Necesitaba crear dos claves (name y description, una para cada
-     * campo en el que buscaba) en filters{}
-     * y hacer busquedas con $or porque no tenia índices COMPUESTOS
-     * Necesitaba esto:
-     * filters.name = new RegExp(req.query.keywords, 'i');
-     * filters.description = new RegExp(req.query.keywords, 'i');
-     * Al haber creado índices COMPUESTOS en Advert.js con esto:
-     * advertSchema.index({ name: 'text', description: 'text' });
-     * Puedo hacer busquedas con $text y pilla todos los campos con 
-     * "segundo" índice "text" sin importar el nombre del campo.
-     * "text" incluye, por defecto, config para obviar min/may y 
-     * diacríticos.
-     * Ahora, lo encuentro todo con lo esto de abajo...muajajajaja
-     */
-    filters.$text = {}
-    filters.$text.$search = req.query.keywords
+    const filters = buildAdFilterFromReq(req)
+
+
+    console.log("#################", req.query)
     console.log("#################", filters)
     /*
     filters.tags = req.query.tags;

@@ -39,6 +39,8 @@ advertSchema.statics.list = async function (filters) {
 }
 
 advertSchema.index({ name: 'text', description: 'text' });
+
 var Advert = mongoose.model('Advert', advertSchema)
 
 module.exports = Advert
+
