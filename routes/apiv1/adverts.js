@@ -23,8 +23,9 @@ router.get('/', async function (req, res, next) {
     const filters = buildAdFilterFromReq(req)
 
 
-    console.log("#################", req.query)
-    console.log("#################", filters)
+
+    console.log("QUERY STRING PARAMS QUE CONTIENE REQ.QUERY", req.query)
+    //console.log("RETORNO DE CONSTRUCCIÓN DE FILTERS", filters)
     /*
     filters.tags = req.query.tags;
     filters.sale = req.query.sale ?? req.query.sale
@@ -44,7 +45,7 @@ router.get('/', async function (req, res, next) {
     */
     try {
         const query = await Advert.list(filters)
-        console.log("ssssssssssssssssssssssssssss", query)
+        console.log("QUERY QUE OBTIENES CON LOS FILTERS", query)
         res.send(query)
     } catch (err) { next(err) }
 })
