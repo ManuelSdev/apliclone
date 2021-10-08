@@ -7,12 +7,13 @@ const jwt = require('jsonwebtoken')
 const jwtAuth = require('../../lib/jwtAuth')
 
 
-
-router.get('/:userName', jwtAuth, async function (req, res, next) {
+//quito jwtAuth para permitir numero de anuncios en página de detalles cuando no es tú anuncio
+//Devuelvo todos los campos menos contraseña porque este endpoint no está protegido
+router.get('/:userName', async function (req, res, next) {
     try {
         const username = req.params.userName
         //console.log("USERRR ===============", username)
-        const query = await User.findOne({ username })
+        const query = await User.findOne({ username }, 'username email favorites image publishedAds')
         //console.log("query USER ===============", query)
         res.send(query)
     } catch (err) { next(err) }
@@ -28,7 +29,8 @@ router.post('/register', async function (req, res, next) {
         //await res.send('hola')
         //console.log(req.body)
         const { username, email, password } = req.body
-        console.log(req.boy)
+        req.body.publishedAds = 0;
+        console.log(req.body)
         if (!email) {
             const error = new Error('Introduzca otro email');
             error.status = 401;
@@ -116,6 +118,8 @@ router.post('/login', async function (req, res, next) {
     }
 })
 
+
+
 /**Obtener objeto con id´s de anuncios favoritos */
 router.get('/fav', jwtAuth, async function (req, res, next) {
     try {
@@ -182,6 +186,7 @@ router.post('/fav', jwtAuth, async function (req, res, next) {
     } catch (err) { next(err) }
 
 })
+
 
 
 /**Logout de usuario */

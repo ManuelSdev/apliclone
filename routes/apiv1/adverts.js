@@ -194,7 +194,7 @@ router.post('/', upload.single("images"), jwtAuth, async function (req, res, nex
         //await res.send('hola')
         //console.log("REQ FILE", req.file)
         console.log("REQ BODY", req.body)
-        const user = await User.findById(req.body.userId)
+        const user = await User.findByIdAndUpdate(req.body.userId, { $inc: { publishedAds: 1 } })
         // console.log("%%%%%%%%%%", user)
         req.body.author = user.username
         // console.log("@@@@@@@@@@@@@@@@@@@", req.body.userId)
